@@ -27,7 +27,6 @@ class NeuralNetworkNode(object):
         del self.model
 
 def run():
-    print('Test')
     train_X, train_Y, test_X, test_Y = load_fer2013_data('C:\\Users\\JakeT\\OneDrive\\Documents\\fer2013.csv')
     
     node = NeuralNetworkNode(train_X, train_Y, test_X, test_Y, num_iterations=1000, learning_rate=0.1)

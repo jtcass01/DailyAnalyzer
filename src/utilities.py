@@ -163,12 +163,7 @@ def get_activation(weights, input_matrix, bias):
     :return: activation list
     """
     
-    print(weights.shape, 'weights')
-    print(input_matrix.shape, 'input_matrix')
-    print(bias, 'bias')
-    
     input_sigmoid = weights.T.dot(input_matrix)
-    print(input_sigmoid)
     
     return sigmoid(weights.T.dot(input_matrix)+bias)
 
@@ -196,22 +191,69 @@ def initialize_weights_and_bias(number_of_features):
     weights = np.random.randn(number_of_features, 1) / np.sqrt(number_of_features)
     bias = 0
 
-    return weights, bias
+    return weights.astype(float), bias
 
+def parse_fer2013_pixels(pixel_data):
+    result = None
+    count = 0
+    
+    for row in pixel_data:
+
+        try:
+            row_list = np.array(list(map(float, row.split(' '))))
+        except AttributeError:
+            row_list = np.array(list(map(float, row)))
+        pixel_count = row_list.shape[0]
+        row_list = row_list.reshape((pixel_count, 1))
+        
+
+        if result == None:
+            result = row_list
+        else:
+            result = np.append(result, row_list, axis=1)
+
+        count += 1
+        
+        if count % 100 == 0:
+            print(result.shape, count, len(pixel_data))
+            count = 0
+
+    print(result, result.shape, 'result')
+    
+    return result
+    
 def load_fer2013_data(file_location):
-
-    data = pd.read_csv(file_location)
+    X_train, X_test = [], []
+    Y_train, Y_test = [], []
+    first = True
     
-    train_data = data[data['Usage'] == 'Training']
-    train_sample_size = len(train_data)
+    for index, line in enumerate(open(file_location)):
+        if first: first = False
+        else:
+            row = line.split(',')
+            sample_type = row[2]
+            if sample_type == "Training\n":
+                # first column is a label
+                Y_train.append(int(row[0]))
+                # second column is space separated integers
+                X_train.append([int(p) for p in row[1].split()])
+            else:
+                # first column is a label
+                Y_test.append(int(row[0]))
+                # second column is space separated integers
+                X_test.append([int(p) for p in row[1].split()])
+#            if index % 100 == 0:
+#                print(row, index)
 
-    test_data = data[data['Usage'] != 'Training']
-    test_sample_size = len(test_data)
-    
-    train_input_matrix = train_data['pixels'].as_matrix().reshape((train_sample_size,1))
-    train_targets = train_data['emotion'].as_matrix().reshape((train_sample_size,1))
+    train_input_matrix, train_targets = np.array(X_train) / 255.0, np.array(Y_train)    
+    test_input_matrix, test_targets = np.array(X_test) / 255.0, np.array(Y_test)
 
-    test_input_matrix = test_data['pixels'].as_matrix().reshape((test_sample_size,1))
-    test_targets = test_data['emotion'].as_matrix().reshape((test_sample_size,1))
+    train_targets = train_targets.reshape((train_input_matrix.shape[0],1))
+    test_targets = test_targets.reshape((test_input_matrix.shape[0],1))
+ 
+    print(train_input_matrix, train_input_matrix.shape, "train_input_matrix")
+    print(train_targets, train_targets.shape, "train_targets")
+    print(test_input_matrix, test_input_matrix.shape, "test_input_matrix")
+    print(test_targets, test_targets.shape, "test_targets")
 
     return train_input_matrix, train_targets, test_input_matrix, test_targets

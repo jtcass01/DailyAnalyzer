@@ -35,16 +35,23 @@ class LogisticModel(object):
         del self
 
     def build_model(self):
+        print("Initializing weights and bias")
         weights, bias = initialize_weights_and_bias(number_of_features=self.train_parameter_matrix.shape[0])
+        print("Weights and bias initialized.")
 
+        print("Optimizing parameters and gradients")
         parameters, gradients, costs = optimize(weights=weights, bias=bias, input_matrix=self.train_parameter_matrix, targets=self.train_targets, num_iterations=self.num_iterations, learning_rate=self.learning_rate)
+        print("Finished optimizing.")
 
         # Retrieve parameters
         weights = parameters['weights']
         bias = parameters['bias']
 
+        print("Making predictions...")
         test_target_predictions = predict(weights=weights, bias=bias, input_matrix=self.test_parameter_matrix)
         train_target_predictions = predict(weights=weights, bias=bias, input_matrix=self.train_parameter_matrix)
+        print("Finished making predictions.")
+
 
         self.model_info = {
             "costs": costs,
