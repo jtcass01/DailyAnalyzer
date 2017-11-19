@@ -1,5 +1,5 @@
 import numpy as np
-
+import pandas as pd
 
 def optimize(weights, bias, input_matrix, targets, num_iterations, learning_rate, log_cost = False, storage_frequency=100):
     """
@@ -189,3 +189,25 @@ def initialize_weights_and_bias(number_of_features):
     bias = 0
 
     return weights, bias
+
+def load_data(file_location):
+    Y = []
+    X = []
+    first = True
+
+
+    for line in open(file_location):
+        index = 0
+        if first: first = False
+        else:
+            row = line.split(',')
+            Y.append(int(row[0]))
+            X.append([int(p) for p in row[1].split()])
+            index += 1
+            if index == 500/:
+                break
+
+    X, Y = np.array(X) / 255.0, np.array(Y)
+
+    print(X, 'input matrix data')
+    print(Y, 'Targets')
