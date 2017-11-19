@@ -162,6 +162,14 @@ def get_activation(weights, input_matrix, bias):
     :param b: bias
     :return: activation list
     """
+    
+    print(weights.shape, 'weights')
+    print(input_matrix.shape, 'input_matrix')
+    print(bias, 'bias')
+    
+    input_sigmoid = weights.T.dot(input_matrix)
+    print(input_sigmoid)
+    
     return sigmoid(weights.T.dot(input_matrix)+bias)
 
 def calculate_cost_function(targets, activation):
@@ -190,24 +198,20 @@ def initialize_weights_and_bias(number_of_features):
 
     return weights, bias
 
-def load_data(file_location):
-    Y = []
-    X = []
-    first = True
+def load_fer2013_data(file_location):
 
+    data = pd.read_csv(file_location)
+    
+    train_data = data[data['Usage'] == 'Training']
+    train_sample_size = len(train_data)
 
-    for line in open(file_location):
-        index = 0
-        if first: first = False
-        else:
-            row = line.split(',')
-            Y.append(int(row[0]))
-            X.append([int(p) for p in row[1].split()])
-            index += 1
-            if index == 500/:
-                break
+    test_data = data[data['Usage'] != 'Training']
+    test_sample_size = len(test_data)
+    
+    train_input_matrix = train_data['pixels'].as_matrix().reshape((train_sample_size,1))
+    train_targets = train_data['emotion'].as_matrix().reshape((train_sample_size,1))
 
-    X, Y = np.array(X) / 255.0, np.array(Y)
+    test_input_matrix = test_data['pixels'].as_matrix().reshape((test_sample_size,1))
+    test_targets = test_data['emotion'].as_matrix().reshape((test_sample_size,1))
 
-    print(X, 'input matrix data')
-    print(Y, 'Targets')
+    return train_input_matrix, train_targets, test_input_matrix, test_targets

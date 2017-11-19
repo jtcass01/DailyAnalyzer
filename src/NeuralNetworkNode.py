@@ -1,5 +1,5 @@
 from LogisticModel import LogisticModel
-from utilities import load_data
+from utilities import load_fer2013_data
 
 class NeuralNetworkNode(object):
     def __init__(self, train_parameter_matrix, train_targets, test_parameter_matrix, test_targets, num_iterations, learning_rate = 0.1, log_cost = False):
@@ -26,8 +26,11 @@ class NeuralNetworkNode(object):
         del self.log_cost
         del self.model
 
-def main():
-    load_data('/home/durzo/Datasets/fer2013/fer2013.csv')
-
+def run():
+    print('Test')
+    train_X, train_Y, test_X, test_Y = load_fer2013_data('C:\\Users\\JakeT\\OneDrive\\Documents\\fer2013.csv')
+    
+    node = NeuralNetworkNode(train_X, train_Y, test_X, test_Y, num_iterations=1000, learning_rate=0.1)
+    
 if __name__ == '__main__':
-    main()
+    run()
