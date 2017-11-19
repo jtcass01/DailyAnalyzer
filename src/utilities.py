@@ -119,7 +119,9 @@ def propagate_forward(weights, bias, input_matrix, targets):
             cost -- negative log-likelihood cost for logistic regression
     """
     activation = get_activation(weights, input_matrix, bias)
+    
     cost = calculate_cost_function(targets, activation)
+    
     return activation, cost
 
 def propagate_back(activation, input_matrix, targets):
@@ -136,7 +138,7 @@ def propagate_back(activation, input_matrix, targets):
 
     sample_size = targets.shape[1]
 
-    dw = 1/sample_size * np.dot(input_matrix, (activation-targets))
+    dw = 1/sample_size * np.dot(input_matrix, (activation-targets).T)
     db = 1/sample_size * np.sum(activation - targets)
 
     return dw, db
