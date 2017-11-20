@@ -1,7 +1,6 @@
 import numpy as np
-import pandas as pd
 
-def optimize(weights, bias, input_matrix, targets, num_iterations, learning_rate, log_cost = False, storage_frequency=100):
+def optimize(input_matrix, targets, num_iterations, learning_rate, log_cost = False, storage_frequency=100):
     """
     This function optimizes w and b by running a gradient descent algorithm
 
@@ -27,21 +26,23 @@ def optimize(weights, bias, input_matrix, targets, num_iterations, learning_rate
     costs = list([])
     dw = None
     db = None
+    weights, bias = initialize_weights_and_bias(number_of_features=input_matrix.shape[0])
 
     for epoch in range(num_iterations):
-        gradients, cost = propagate_forward_and_back(weights=weights, bias=bias, input_matrix=input_matrix, targets=targets)
+        gradients, cost = propagate_forward_and_back(weights, bias, input_matrix, targets)
 
-        # Retrieve derivatives from gradients
+        #retrieve gradients:
         dw = gradients['dw']
         db = gradients['db']
 
         # Update weights and bias
-        weights = weights-learning_rate*dw
-        bias = bias-learning_rate*db
+        weights -= learning_rate*dw
+        bias -= learning_rate*db
 
         # Store the cost in an array for later analysis
         if epoch % storage_frequency == 0:
-            costs.append(costs)
+            costs.append(cost)
+            print(epoch, "Cost: ", cost)
 
     parameters = {
         'weights' : weights,
@@ -98,7 +99,7 @@ def propagate_forward_and_back(weights, bias, input_matrix, targets):
     - Write your code step by step for the propagation. np.log(), np.dot()
     """
     activation, cost = propagate_forward(weights=weights, bias=bias, input_matrix=input_matrix, targets=targets)
-    dw, db = propagate_back(activation=activation, input_matrix=input_matrix, targets=targets)
+    dw, db = propagate_back(weights=weights, activation=activation, input_matrix=input_matrix, targets=targets)
 
     gradients = {
         "dw" : dw,
@@ -124,7 +125,7 @@ def propagate_forward(weights, bias, input_matrix, targets):
     
     return activation, cost
 
-def propagate_back(activation, input_matrix, targets):
+def propagate_back(weights, activation, input_matrix, targets):
     """
     Performs propagate forward step for a single neural network node
 
@@ -139,7 +140,10 @@ def propagate_back(activation, input_matrix, targets):
     sample_size = targets.shape[1]
 
     dw = 1/sample_size * np.dot(input_matrix, (activation-targets).T)
-    db = 1/sample_size * np.sum(activation - targets)
+    db = 1/sample_size * np.sum(activation-targets)
+
+    assert(dw.shape == weights.shape)
+    assert(db.dtype == float)
 
     return dw, db
 
@@ -164,10 +168,10 @@ def get_activation(weights, input_matrix, bias):
     :param b: bias
     :return: activation list
     """
-    
-    input_sigmoid = weights.T.dot(input_matrix)
-    
-    return sigmoid(weights.T.dot(input_matrix)+bias)
+
+    z = weights.T.dot(input_matrix)+bias
+
+    return sigmoid(z)
 
 def calculate_cost_function(targets, activation):
     """
@@ -250,12 +254,12 @@ def load_fer2013_data(file_location):
     train_input_matrix, train_targets = np.array(X_train) / 255.0, np.array(Y_train)    
     test_input_matrix, test_targets = np.array(X_test) / 255.0, np.array(Y_test)
 
-    train_targets = train_targets.reshape((train_input_matrix.shape[0],1))
-    test_targets = test_targets.reshape((test_input_matrix.shape[0],1))
+    train_targets = train_targets.reshape((1,train_input_matrix.shape[0]))
+    test_targets = test_targets.reshape((1,test_input_matrix.shape[0]))
  
     print(train_input_matrix, train_input_matrix.shape, "train_input_matrix")
     print(train_targets, train_targets.shape, "train_targets")
     print(test_input_matrix, test_input_matrix.shape, "test_input_matrix")
     print(test_targets, test_targets.shape, "test_targets")
 
-    return train_input_matrix, train_targets, test_input_matrix, test_targets
+    return train_input_matrix.T, train_targets.astype(int), test_input_matrix.T, test_targets.astype(int)
